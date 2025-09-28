@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+        Chai       1.00      1.00      1.00       290
+       India       1.00      1.00      1.00       276
+       Lassi       1.00      1.00      1.00       240
+       Udhar       1.00      1.00      1.00       240
+      Vishal       1.00      1.00      1.00       258
+
+    accuracy                           1.00      1304
+   macro avg       1.00      1.00      1.00      1304
+weighted avg       1.00      1.00      1.00      1304
