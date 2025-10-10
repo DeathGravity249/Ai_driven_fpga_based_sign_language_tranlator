@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Upload{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h2 class="text-center mb-4">Upload Sign Language Image/Video</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <!-- Upload Form -->
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="fileInput" class="form-label">Select File</label>
+                            <input class="form-control" type="file" id="fileInput" 
+                                   accept="image/*,video/*" required>
+                            <div class="form-text">
+                                Supported formats: JPG, PNG, MP4, AVI (Max 100MB)
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="fileType" class="form-label">File Type</label>
+                            <select class="form-select" id="fileType">
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="uploadBtn">
+                                📤 Upload & Translate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="card mt-4" id="previewSection" style="display: none;">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Preview</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div id="filePreview"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card mt-4" id="resultsSection" style="display: none;">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Translation Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="translationResults">
+                        <p class="text-muted">Translation will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileType = document.getElementById('fileType');
+        const previewSection = document.getElementById('previewSection');
+        const filePreview = document.getElementById('filePreview');
+        const resultsSection = document.getElementById('resultsSection');
+        const translationResults = document.getElementById('translationResults');
+
+        // Handle file selection preview
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                previewSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+                
+                if (file.type.startsWith('image/')) {
+                    fileType.value = 'image';
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        filePreview.innerHTML = `<img src="${e.target.result}" class="img-fluid" style="max-height: 300px;" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    fileType.value = 'video';
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        filePreview.innerHTML = `
+                            <video controls class="img-fluid" style="max-height: 300px;">
+                                <source src="${e.target.result}" type="${file.type}">
+                                Your browser does not support the video tag.
+                            </video>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Handle form submission
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('fileType', fileType.value);
+
+            // Show loading state
+            translationResults.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">Processing your file...</p></div>';
+            resultsSection.style.display = 'block';
+
+            // Simulate API call (replace with actual endpoint)
+            setTimeout(() => {
+                translationResults.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6>Translation Complete!</h6>
+                    </div>
+                    <p><strong>Detected Signs:</strong> Hello, Thank You, Good Morning</p>
+                    <p><strong>Full Translation:</strong> "Hello! Thank you. Good morning!"</p>
+                    <p><strong>Confidence:</strong> 92%</p>
+                `;
+            }, 3000);
+
+            // Actual API call would look like:
+            /*
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle response
+                translationResults.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6>Translation Complete!</h6>
+                    </div>
+                    <p><strong>Detected Signs:</strong> ${data.detected_signs}</p>
+                    <p><strong>Full Translation:</strong> "${data.translation}"</p>
+                    <p><strong>Confidence:</strong> ${data.confidence}%</p>
+                `;
+            })
+            .catch(error => {
+                translationResults.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            });
+            */
+        });
+    });
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+    
+    #filePreview img, #filePreview video {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
