@@ -37,4 +37,4 @@ A real-time sign language translation system that converts Indian Sign Language 
 - **Transfer Learning** - Model optimization
 - **Data Augmentation** - Training data enhancement
 
-## 📁 Project Structure
+
