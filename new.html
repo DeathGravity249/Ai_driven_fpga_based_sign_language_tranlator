@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI | Neural Sign Language Translation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blood-red: #8B0000;
+            --dark-red: #660000;
+            --neon-red: #FF073A;
+            --matrix-green: #00FF41;
+            --cyber-blue: #00D8FF;
+            --pure-black: #000000;
+            --dark-gray: #1A1A1A;
+            --carbon: #2B2B2B;
+            --steel: #404040;
+            --warning: #FFD700;
+        }
+
+        body {
+            background: var(--pure-black);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Math Pattern Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 7, 58, 0.08) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 48%, rgba(139, 0, 0, 0.03) 50%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(139, 0, 0, 0.03) 50%, transparent 52%);
+            background-size: 400px 400px, 300px 300px, 100px 100px, 100px 100px;
+            z-index: -1;
+        }
+
+        /* Circuit Board Pattern Overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, transparent 24px, rgba(139, 0, 0, 0.02) 24px, rgba(139, 0, 0, 0.02) 25px, transparent 25px),
+                linear-gradient(0deg, transparent 24px, rgba(139, 0, 0, 0.02) 24px, rgba(139, 0, 0, 0.02) 25px, transparent 25px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid var(--blood-red);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-main {
+            color: var(--blood-red);
+            text-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+
+        .logo-ai {
+            color: var(--neon-red);
+            text-shadow: 0 0 15px rgba(255, 7, 58, 0.7);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::before {
+            content: '>';
+            color: var(--neon-red);
+            margin-right: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            opacity: 1;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-red);
+            border: 1px solid var(--blood-red);
+            background: rgba(139, 0, 0, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            margin-top: 80px;
+            position: relative;
+            border-bottom: 1px solid var(--blood-red);
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-title-main {
+            color: #fff;
+            display: block;
+        }
+
+        .hero-title-accent {
+            color: var(--neon-red);
+            display: block;
+            text-shadow: 0 0 20px rgba(255, 7, 58, 0.5);
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(139, 0, 0, 0.2);
+            border: 1px solid var(--blood-red);
+            padding: 0.5rem 1rem;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            color: var(--neon-red);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            color: #ccc;
+            border-left: 2px solid var(--blood-red);
+            padding-left: 1rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: 1px solid;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--blood-red);
+            color: white;
+            border-color: var(--neon-red);
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--neon-red);
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 7, 58, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--neon-red);
+            border-color: var(--blood-red);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 0, 0, 0.1);
+            border-color: var(--neon-red);
+            transform: translateY(-2px);
+        }
+
+        /* Neural Network Visualization */
+        .neural-viz {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--blood-red);
+            box-shadow: 0 0 30px rgba(139, 0, 0, 0.2);
+        }
+
+        .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+
+        .connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blood-red), transparent);
+            transform-origin: left center;
+        }
+
+        /* How It Works Section */
+        .section {
+            padding: 5rem 5%;
+            border-bottom: 1px solid var(--blood-red);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: var(--neon-red);
+            text-shadow: 0 0 10px rgba(255, 7, 58, 0.3);
+        }
+
+        .section-title::before, .section-title::after {
+            content: '//';
+            color: var(--blood-red);
+            margin: 0 1rem;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .process-card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--steel);
+            padding: 2.5rem 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--blood-red);
+        }
+
+        .process-card:hover {
+            border-color: var(--neon-red);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 0, 0, 0.2);
+        }
+
+        .process-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 40px;
+            height: 40px;
+            background: var(--blood-red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: 2px solid var(--neon-red);
+        }
+
+        .process-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--neon-red);
+        }
+
+        .process-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .process-card p {
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        /* Tech Specs */
+        .tech-specs {
+            background: rgba(139, 0, 0, 0.05);
+            border: 1px solid var(--blood-red);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .spec-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .spec-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--neon-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-label {
+            color: #ccc;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--pure-black);
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--blood-red);
+        }
+
+        .footer p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Matrix Rain Effect Container */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            
+            .cta-buttons {
+                justify-content: center;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Rain Background -->
+    <canvas class="matrix-rain" id="matrixRain"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-main">SignSpeak</span>
+            <span class="logo-ai">AI</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#live">Live Translate</a>
+            <a href="#upload">Upload</a>
+            <a href="#tech">Tech Specs</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>
+                    <span class="hero-title-main">NEURAL SIGN LANGUAGE</span>
+                    <span class="hero-title-accent">TRANSLATION ENGINE</span>
+                </h1>
+                
+                <div class="tech-stack">
+                    <span class="tech-tag">FPGA ACCELERATED</span>
+                    <span class="tech-tag">DEEP LEARNING</span>
+                    <span class="tech-tag">COMPUTER VISION</span>
+                    <span class="tech-tag">REAL-TIME INFERENCE</span>
+                </div>
+                
+                <p>Advanced neural network architecture processing sign language gestures through convolutional layers and recurrent networks with 94.7% accuracy in real-time translation.</p>
+                
+                <div class="cta-buttons">
+                    <a href="#live" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        INITIATE TRANSLATION
+                    </a>
+                    <a href="#upload" class="btn btn-secondary">
+                        <i class="fas fa-upload"></i>
+                        UPLOAD DATASET
+                    </a>
+                </div>
+            </div>
+            
+            <div class="neural-viz" id="neuralNetwork">
+                <!-- Neural network visualization will be generated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section" id="process">
+        <h2 class="section-title">PROCESS PIPELINE</h2>
+        <div class="process-grid">
+            <div class="process-card">
+                <div class="process-number">01</div>
+                <div class="process-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>INPUT CAPTURE</h3>
+                <p>High-frequency frame capture with pose estimation and hand landmark detection using MediaPipe framework.</p>
+            </div>
+            <div class="process-card">
+                <div class="process-number">02</div>
+                <div class="process-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>NEURAL PROCESSING</h3>
+                <p>FPGA-accelerated convolutional neural networks with temporal analysis through LSTM layers for sequence recognition.</p>
+            </div>
+            <div class="process-card">
+                <div class="process-number">03</div>
+                <div class="process-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>OUTPUT GENERATION</h3>
+                <p>Real-time text and speech output with confidence scoring and contextual post-processing for improved accuracy.</p>
+            </div>
+        </div>
+
+        <div class="tech-specs">
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <div class="spec-value">94.7%</div>
+                    <div class="spec-label">Accuracy</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">47ms</div>
+                    <div class="spec-label">Latency</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">128+</div>
+                    <div class="spec-label">Gestures</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">FPGA</div>
+                    <div class="spec-label">Acceleration</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>SignSpeak AI v2.4.1 | Neural Translation Engine | &copy; 2024 All Systems Operational</p>
+    </footer>
+
+    <script>
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrixRain');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "01010101010101010101010101010101010101010101010101";
+        const charArray = chars.split("");
+        const fontSize = 12;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#8B0000";
+            ctx.font = fontSize + "px JetBrains Mono";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+
+        // Neural Network Visualization
+        function createNeuralNetwork() {
+            const container = document.getElementById('neuralNetwork');
+            const nodes = [];
+            const connections = [];
+            
+            // Create nodes
+            for(let layer = 0; layer < 5; layer++) {
+                const layerNodes = [];
+                const nodeCount = layer === 0 ? 8 : layer === 4 ? 6 : 7;
+                
+                for(let i = 0; i < nodeCount; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    const x = (layer / 4) * 90 + 5;
+                    const y = (i / (nodeCount - 1)) * 90 + 5;
+                    node.style.left = x + '%';
+                    node.style.top = y + '%';
+                    container.appendChild(node);
+                    layerNodes.push({x, y});
+                }
+                nodes.push(layerNodes);
+            }
+            
+            // Create connections
+            for(let layer = 0; layer < nodes.length - 1; layer++) {
+                for(let i = 0; i < nodes[layer].length; i++) {
+                    for(let j = 0; j < nodes[layer + 1].length; j++) {
+                        const startNode = nodes[layer][i];
+                        const endNode = nodes[layer + 1][j];
+                        
+                        const connection = document.createElement('div');
+                        connection.className = 'connection';
+                        
+                        const length = Math.sqrt(
+                            Math.pow(endNode.x - startNode.x, 2) + 
+                            Math.pow(endNode.y - startNode.y, 2)
+                        );
+                        
+                        const angle = Math.atan2(
+                            endNode.y - startNode.y, 
+                            endNode.x - startNode.x
+                        ) * 180 / Math.PI;
+                        
+                        connection.style.width = length + '%';
+                        connection.style.left = startNode.x + '%';
+                        connection.style.top = startNode.y + '%';
+                        connection.style.transform = `rotate(${angle}deg)`;
+                        connection.style.opacity = Math.random() * 0.3 + 0.1;
+                        
+                        container.appendChild(connection);
+                    }
+                }
+            }
+        }
+
+        // Initialize neural network on load
+        window.addEventListener('load', createNeuralNetwork);
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Add glitch effect to title occasionally
+        setInterval(() => {
+            const title = document.querySelector('.hero-title-accent');
+            if(Math.random() > 0.7) {
+                title.style.textShadow = '0 0 20px rgba(255, 7, 58, 0.8)';
+                setTimeout(() => {
+                    title.style.textShadow = '0 0 15px rgba(255, 7, 58, 0.7)';
+                }, 100);
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

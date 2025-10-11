@@ -1,0 +1,31 @@
+# 1. Make sure you're on blackberry branch
+git checkout blackberry
+
+# 2. Create .gitignore (this protects your branch)
+cat > .gitignore << EOF
+dataset/
+saved_models/
+*.jpg
+*.png
+*.jpeg
+*.h5
+*.pkl
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+EOF
+
+# 3. Remove from Git tracking (files stay on your computer)
+git rm -r --cached dataset/
+git rm -r --cached saved_models/
+
+# 4. Check what will be committed (should show only .gitignore and removed files)
+git status
+
+# 5. Commit the cleanup
+git add .gitignore
+git commit -m "Cleanup: stop tracking dataset and model files"
+
+# 6. Push the improved branch
+git push origin blackberry
